@@ -6,17 +6,23 @@ import UIKit
 import TwitterKit
 
 
-
+//Class to display the tasks add and further options to add task, settings, rewards etc
 class TaskViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
+    static var isEmailogin = false
+    static var isGoogleLogin = false
+    
     @IBOutlet var tableView: UITableView!
+    
+    @IBAction func openProfile(_ sender: Any) {
+        
+    }
+    
     
     var rewards: Int = 0
     var tasks: [Task] = []
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
         
         self.title = "ITask"
         tableView.dataSource = self
@@ -30,7 +36,6 @@ class TaskViewController: UIViewController, UITableViewDataSource, UITableViewDe
         addItemView.layer.cornerRadius = 5
 
         
-        
         // Do any additional setup after loading the view.
     }
     
@@ -42,8 +47,7 @@ final class alertController : UIAlertController {
     }
 }
     
-
-    
+    //Create Animation
     func animateIn() {
         
         self.view.addSubview(addItemView)
@@ -59,6 +63,7 @@ final class alertController : UIAlertController {
         
     }
     
+    //Create animation
     func animateOut(){
         
         UIView.animate(withDuration: 0.3, animations: { 
@@ -75,16 +80,18 @@ final class alertController : UIAlertController {
     }
     
     
+    //Clear out all rewards earned
     @IBAction func ClearReward(_ sender: Any) {
         
         numberOfReward.text = String("No Reward 😔")
         
     }
     
+    
     @IBOutlet weak var numberOfReward: UILabel!
     
     
-    
+    //Show count of all rewards earned
     @IBAction func ShowReward(_ sender: Any) {
         
         animateIn()
@@ -105,6 +112,7 @@ final class alertController : UIAlertController {
         tableView.reloadData()
     }
     
+    //LogOut Button functionality
     @IBAction func LogoutButton(_ sender: Any) {
         
         
@@ -113,10 +121,16 @@ final class alertController : UIAlertController {
         // Create OK button
         let OKAction = UIAlertAction(title: "OK", style: .default) { (action:UIAlertAction!) in
             
+            if(TaskViewController.isEmailogin == true ) {
+                self.navigationController?.popToRootViewController(animated: true)
+                print("Email:logout : ok tapped")
+            } else if (TaskViewController.isGoogleLogin == true){
+                print("Google:logout : ok tapped")
+                self.navigationController?.popToRootViewController(animated: true)
+            } else {
             
-            
-            let store = Twitter.sharedInstance().sessionStore
-            if let userID = store.session()?.userID {
+               let store = Twitter.sharedInstance().sessionStore
+               if let userID = store.session()?.userID {
                 store.logOutUserID(userID)
                 print ("logged out")
                 
@@ -124,8 +138,9 @@ final class alertController : UIAlertController {
                 self.navigationController?.popToRootViewController(animated: true) }
 
             
-            // Code in this block will trigger when OK button tapped.
-            print("Ok button tapped");
+              // Code in this block will trigger when OK button tapped.
+                print("Twitter Logout : Ok button tapped");
+            }
             
         }
         alertController.addAction(OKAction)
@@ -141,12 +156,13 @@ final class alertController : UIAlertController {
         
     }
     
-    
+    //Function to show the Iphone Calendar
     @IBAction func ShowCalendarView(_ sender: Any) {
         
         open(scheme: "calshow://")
     }
     
+    //Function to make a URL call to the Iphone Calendar
     func open(scheme: String) {
         if let url = URL(string: scheme) {
             if #available(iOS 10, *) {
@@ -170,7 +186,6 @@ final class alertController : UIAlertController {
     var initialIndexPath: IndexPath?
 
 
-
     
     @IBAction func dismissPopup(_ sender: UIButton) {
         
@@ -178,11 +193,9 @@ final class alertController : UIAlertController {
     }
     
     
-    
+    //Table View Creation with a table row for each task
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        
-
         
         cell.textLabel?.font = UIFont(name:"AvenirNextCondensed-regular", size: 16)
         
@@ -195,9 +208,10 @@ final class alertController : UIAlertController {
             task.isOverdue = true
         }
         
+        //Check if task is important
         if task.isImportant{
   
-            cell.textLabel?.text = " Imp : " + dateString + " :  \(task.name!)"
+            cell.textLabel?.text = " ❗️" + dateString + " :  \(task.name!)"
             
             if(task.isOverdue){
                 cell.textLabel?.textColor = UIColor.red
@@ -222,6 +236,7 @@ final class alertController : UIAlertController {
     }
     
     
+    //Fetch the data from Core Data
     func getData() {
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         do {
@@ -234,6 +249,7 @@ final class alertController : UIAlertController {
     }
     
     
+    //Table row actions for Delete and Task Complete
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let delete = UITableViewRowAction(style: .default, title: "Delete") { (action:UITableViewRowAction, indexPath:IndexPath) in
             print("delete at:\(indexPath)")
@@ -274,19 +290,6 @@ final class alertController : UIAlertController {
                             print ("Fetching failed")
                         }
                         tableView.reloadData()
-                    let composer = TWTRComposer()
-                    
-                    composer.setText("I just earned a reward by nailing a task at ITask")
-                    composer.setImage(UIImage(named: "twitterkit"))
-                    
-                    // Called from a UIViewController
-                    composer.show(from: self.navigationController!) { (result) in
-                        if (result == .done) {
-                            print("Successfully composed Tweet")
-                            
-                        } else {
-                            print("Cancelled composing") } }
-
                 
             }
                 
