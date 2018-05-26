@@ -5,7 +5,7 @@
 import UIKit
 import EventKit
 
-
+//Class to add a task
 class AddTaskViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var textFeild: UITextField!
@@ -45,7 +45,7 @@ class AddTaskViewController: UIViewController, UITextFieldDelegate {
     
     
     
-    
+    //Function for button tapped to save the task added
     @IBAction func btnTapped(_ sender: Any) {
         
         let context = (UIApplication.shared.delegate as! AppDelegate!).persistentContainer.viewContext
