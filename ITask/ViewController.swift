@@ -26,32 +26,66 @@ class ViewController: UIViewController {
     @IBOutlet weak var password: UITextField!
     
     
-    
+    //Login functionality. Performs user validation and Moves to next screen
     @IBAction func login(_ sender: Any) {
         
         let usernameText : String = username.text!
         let passwordText : String = password.text!
         
-        
+        //Check if username already exists in UserDefaults
         if (UserDefaults.standard.object(forKey: "username") != nil) {
+            TaskViewController.isEmailogin = true
             if(usernameText == UserDefaults.standard.object(forKey: "username") as? String){
                 if(passwordText == UserDefaults.standard.object(forKey: "password") as? String ){
                     self.performSegue(withIdentifier: "LoginToSegue", sender: self)
                 } else {
                     print ("Password does not match")
+                    let alert = UIAlertController(title: "Alert", message: "Password does not match", preferredStyle: UIAlertControllerStyle.alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                        switch action.style{
+                        case .default:
+                            print("default")
+                            
+                        case .cancel:
+                            print("cancel")
+                            
+                        case .destructive:
+                            print("destructive")
+                            
+                            
+                        }}))
+                    self.present(alert, animated: true, completion: nil)
                 }
-            } else {
+            } else { //User credentials do not match
                 print("Username does not match")
+                let alert = UIAlertController(title: "Alert", message: "Username does not match", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                    switch action.style{
+                    case .default:
+                        print("default")
+                        
+                    case .cancel:
+                        print("cancel")
+                        
+                    case .destructive:
+                        print("destructive")
+                        
+                        
+                    }}))
+                self.present(alert, animated: true, completion: nil)
             }
         } else {
             //Logging in as a new user
+           TaskViewController.isEmailogin = true
            UserDefaults.standard.set(usernameText, forKey: "username") //setObject
            UserDefaults.standard.set(passwordText, forKey: "password") //setObject
            self.performSegue(withIdentifier: "LoginToSegue", sender: self)
         }
     }
     
-    
+    /**
+     Touch ID Implementation
+    **/
     @IBAction func action(_ sender: Any) {
         
         let context:LAContext = LAContext()
@@ -79,18 +113,19 @@ class ViewController: UIViewController {
         //setupTwitterButton()
     }
     
-    // MARK: - Initial UI Setups
+    // MARK: - Setup Initial UI buttons
     fileprivate func initialUISetups() {
         
         //setupTwitterButton()
         
+        //Create the Social Media Login buttons
         facebookButtonSetup()
         googleButtonSetup()
         twitterButtonSetup()
     
     }
     
-    // MARK: Facebook Sign In Button Setup
+    // Facebook Sign In Button Setup
     
     fileprivate func facebookButtonSetup() {
         // Facebook Login Button Setups
@@ -108,7 +143,7 @@ class ViewController: UIViewController {
         fbLoginButton.heightAnchor.constraint(equalToConstant: Defaults.facebookLoginButtonHeight).isActive = true
     }
     
-    // MARK: Google Sign In Button Setup
+    // Google Sign In Button Setup
     
     fileprivate func googleButtonSetup() {
         // Google Sign In Button Setups
@@ -123,8 +158,7 @@ class ViewController: UIViewController {
         googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Defaults.buttonTrailingAnchor).isActive = true
     }
     
-    // MARK: Twitter Sign In Button Setup
-    
+    //Twitter Sign In Button Setup
     fileprivate func twitterButtonSetup() {
         // Twitter Login Button
         let twitterLoginButton = TWTRLogInButton(logInCompletion: { session, error in
@@ -134,13 +168,6 @@ class ViewController: UIViewController {
             } else {
                 print("error: \(error?.localizedDescription)")
             }
-            
-            //if let err = error {
-               // print ("Failed to login via Twitter : ", err)
-               // return
-           // }
-            //print ("Successfully logged in via Twitter")
-           // self.performSegue(withIdentifier: "LoginToSegue", sender: self)
         })
         view.addSubview(twitterLoginButton)
         // Add Constraints to Twitter Sign In Button
@@ -150,7 +177,7 @@ class ViewController: UIViewController {
         twitterLoginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Defaults.buttonTrailingAnchor).isActive = true
     }
     
-    // Fetch User's Public Facebook Profile Data
+    // Retrive User's Public Facebook Profile Data
     fileprivate func fetchUserProfileData() {
         let params = ["fields": "email, first_name, last_name, picture"]
         FBSDKGraphRequest(graphPath: "me", parameters: params).start(completionHandler: { connection, result, error in
@@ -158,7 +185,7 @@ class ViewController: UIViewController {
         })
     }
     
-    // Basic Alert View
+    // Create a Alert View
     fileprivate func showAlert(withTitle title: String, message: String) {
         let alertView = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
@@ -177,6 +204,7 @@ class ViewController: UIViewController {
         return true
     }
 
+    //Create the Twitter Button
     fileprivate func setupTwitterButton(){
         let twitterButton = TWTRLogInButton { (session, error) in
             if let err = error {
@@ -189,7 +217,15 @@ class ViewController: UIViewController {
         }
         
         view.addSubview(twitterButton)
-        twitterButton.frame = CGRect (x: 16, y: 166+66+66+66+66+66+66, width: view.frame.width-32 , height: 50)
+        
+        var yVal = 166 + 66
+        yVal += 66
+        yVal += 66
+        yVal += 66
+        yVal += 66
+        yVal += 66
+        
+        twitterButton.frame = CGRect (x: 16, y: yVal, width: Int(view.frame.width-32) , height: 50)
 
     }
 
@@ -200,7 +236,7 @@ class ViewController: UIViewController {
 }
 
 
-// MARK: - Facebook SDK Button Delegates
+//Facebook SDK Button Delegates
 
 extension ViewController: FBSDKLoginButtonDelegate {
     
@@ -211,6 +247,7 @@ extension ViewController: FBSDKLoginButtonDelegate {
             
         } else {
             showAlert(withTitle: "Success", message: "Successfully Logged in")
+            self.performSegue(withIdentifier: "LoginToSegue", sender: self)
         }
     }
     
@@ -219,7 +256,7 @@ extension ViewController: FBSDKLoginButtonDelegate {
     }
 }
 
-// MARK: - Google Sign In Delgates
+//Google Sign In Delgates
 
 extension ViewController: GIDSignInUIDelegate {
     
@@ -228,7 +265,9 @@ extension ViewController: GIDSignInUIDelegate {
 extension ViewController: GIDSignInDelegate {
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        showAlert(withTitle: "Success", message: "Successfully Logged in \(user.userID)")
+        //showAlert(withTitle: "Success", message: "Successfully Logged in \(user.userID)")
+        TaskViewController.isGoogleLogin = true
+        self.performSegue(withIdentifier: "LoginToSegue", sender: self)
     }
     
     
